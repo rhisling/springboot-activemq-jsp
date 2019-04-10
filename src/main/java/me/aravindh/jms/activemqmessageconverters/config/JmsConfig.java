@@ -7,12 +7,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
+import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 
 @EnableJms
+@EnableTransactionManagement
 @Configuration
 public class JmsConfig { //implements JmsListenerConfigurer
 
@@ -53,7 +57,19 @@ public class JmsConfig { //implements JmsListenerConfigurer
         factory.setConnectionFactory(connectionFactory());
         factory.setMessageConverter(jacksonJmsMessageConverter());
         //factory.setMessageConverter(xmlMarshallingMessageConverter());
+        factory.setTransactionManager(jmsTransactionManager());
         return factory;
+    }
+
+    /**
+     * On Rollback msg is not sent by producer
+     * on consumer side, msg is re-queued on the MOM for retrieval.
+     * Re-queueing of messages is broker dependent
+     * For ActiveMQ,on rollback, after retries you can configure the broker to move it to DLQ(Dead letter queue)
+     */
+    @Bean
+    public PlatformTransactionManager jmsTransactionManager() {
+        return new JmsTransactionManager(connectionFactory());
     }
 
 

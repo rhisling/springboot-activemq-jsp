@@ -4,6 +4,7 @@ import me.aravindh.jms.activemqmessageconverters.model.BookOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BookOrderService {
@@ -17,6 +18,7 @@ public class BookOrderService {
         this.jmsTemplate = jmsTemplate;
     }
 
+    @Transactional
     public void send(BookOrder bookOrder) {
         jmsTemplate.convertAndSend(BOOK_QUEUE, bookOrder);
     }
