@@ -1,4 +1,4 @@
-package me.aravindh.jms.activemqmessageconverters.service;
+package me.aravindh.jms.activemqmessageconverters.service.jms;
 
 import me.aravindh.jms.activemqmessageconverters.model.BookOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +19,13 @@ public class BookOrderService {
     }
 
     @Transactional
-    public void send(BookOrder bookOrder) {
-        jmsTemplate.convertAndSend(BOOK_QUEUE, bookOrder);
+    public void send(BookOrder bookOrder, String storeId, String orderState) {
+        jmsTemplate.convertAndSend(BOOK_QUEUE, bookOrder, (message -> {
+            message.setStringProperty("bookOrderId", bookOrder.getBookOrderId());
+            message.setStringProperty("storeId", storeId);
+            message.setStringProperty("orderState", orderState);
+            return message;
+        }));
     }
 
 

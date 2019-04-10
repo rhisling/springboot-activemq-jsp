@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html lang="en">
 <head>
 
     <!-- Access the bootstrap Css like this,
     Spring boot will handle the resource mapping automcatically -->
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/webjars/bootstrap/4.0.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css"
+          href="${pageContext.request.contextPath}/webjars/bootstrap/4.0.0/css/bootstrap.min.css"/>
 
     <!--
 <spring:url value="/css/main.css" var="springCss" />
 <link href="" rel="stylesheet" />
 -->
-    <c:url value="/css/main.css" var="jstlCss" />
-    <link href="" rel="stylesheet" />
+    <c:url value="/css/main.css" var="jstlCss"/>
+    <link href="" rel="stylesheet"/>
     <style>
-        .hide{
-            display : none;
+        .hide {
+            display: none;
         }
     </style>
 
@@ -46,10 +47,11 @@
     </div>
     <div class="jumbotron row">
         <div class="col-lg-6">
-            <img src="${pageContext.request.contextPath}/images/random_books.png" style="width: 350px;" class="rounded" alt="picture of random books"/>
+            <img src="${pageContext.request.contextPath}/images/random_books.png" style="width: 350px;" class="rounded"
+                 alt="picture of random books"/>
         </div>
         <div class="col-lg-6">
-            <h1 class="display-3">Your Books Galore  </h1>
+            <h1 class="display-3">Your Books Galore </h1>
             <p class="lead">Place book orders here to warehouse for shipping</p>
         </div>
     </div>
@@ -77,7 +79,15 @@
                     </c:forEach>
                 </select>
                 <br/>
-                <button class="btn btn-primary" id="addToOrderId" onclick="processOrder();" type="button">Add to Order</button>
+                <h4>Order Status</h4>
+                <select class="form-control" id="orderStateId">
+                    <option value="NEW">NEW</option>
+                    <option value="UPDATE">UPDATE</option>
+                    <option value="DELETE">CANCEL</option>
+                </select>
+                <br/>
+                <button class="btn btn-primary" id="addToOrderId" onclick="processOrder();" type="button">Add to Order
+                </button>
 
             </div>
 
@@ -90,22 +100,24 @@
 </div>
 <script>
 
-    function processOrder(){
+    function processOrder() {
+        var randomStoreId = Math.floor(Math.random() * 100000);
         var randomOrderId = Math.floor(Math.random() * 100000);
         var bookId = $('#bookId').val();
         var customerId = $('#customerId').val();
-        alert(randomOrderId + " - " + customerId + " - " + bookId);
-        jQuery.get('${pageContext.request.contextPath}/process/order/'+randomOrderId+'/'+customerId+'/'+bookId+'/',
-            function(data, status){
+        var orderStateId = $('#orderStateId').val();
+//alert(randomOrderId + " - " + customerId + " - " + bookId);
+        jQuery.get('${pageContext.request.contextPath}/process/store/' + randomStoreId + '/order/' + randomOrderId + '/' + customerId + '/' + bookId + '/' + orderStateId + "/",
+            function (data, status) {
                 $("#jmsMessageAlert").removeClass('hide');
                 $("#jmsMessageAlert span").text(data);
             });
     }
 </script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/webjars/jquery/3.3.1/jquery.min.js"></script>
-<script type="text/javascript" src="${pageContext.request.contextPath}/webjars/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script type="text/javascript"
+        src="${pageContext.request.contextPath}/webjars/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
 </body>
 
 </html>
-

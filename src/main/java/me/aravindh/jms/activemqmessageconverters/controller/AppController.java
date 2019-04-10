@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import me.aravindh.jms.activemqmessageconverters.model.Book;
 import me.aravindh.jms.activemqmessageconverters.model.BookOrder;
 import me.aravindh.jms.activemqmessageconverters.model.Customer;
-import me.aravindh.jms.activemqmessageconverters.service.BookOrderService;
+import me.aravindh.jms.activemqmessageconverters.service.jms.BookOrderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,8 +23,10 @@ import java.util.List;
 
 @Controller
 public class AppController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppController.class);
 
-    private final BookOrderService bookOrderService;
+    @Autowired
+    private BookOrderService bookOrderService;
 
     List<Book> books = Arrays.asList(
             new Book("jpw-1234", "Lord of the Flies"),
@@ -35,10 +40,6 @@ public class AppController {
             new Customer("sm-8765", "Steve McClarney")
     );
 
-    public AppController(BookOrderService bookOrderService) {
-        this.bookOrderService = bookOrderService;
-    }
-
     @RequestMapping("/")
     public String appHome(ModelMap map) {
 
@@ -48,15 +49,19 @@ public class AppController {
         return "index";
     }
 
-    @RequestMapping(path = "/process/order/{orderId}/{customerId}/{bookId}/", method = RequestMethod.GET)
+    @RequestMapping(path = "/process/store/{storeId}/order/{orderId}/{customerId}/{bookId}/{orderState}/", method =
+            RequestMethod.GET)
     public @ResponseBody
-    String processOrder(@PathVariable("orderId") String orderId,
+    String processOrder(@PathVariable("storeId") String storeId,
+                        @PathVariable("orderId") String orderId,
                         @PathVariable("customerId") String customerId,
-                        @PathVariable("bookId") String bookId) throws JsonMappingException, JsonParseException,
-            IOException {
+                        @PathVariable("bookId") String bookId,
+                        @PathVariable("orderState") String orderState) throws JsonMappingException,
+            JsonParseException, IOException {
 
         try {
-            bookOrderService.send(build(customerId, bookId, orderId));
+            LOGGER.info("StoredId is = {}", storeId);
+            bookOrderService.send(build(customerId, bookId, orderId), storeId, orderState);
         } catch (Exception exception) {
             return "Error occurred!" + exception.getLocalizedMessage();
         }
@@ -92,4 +97,3 @@ public class AppController {
 
 
 }
-
